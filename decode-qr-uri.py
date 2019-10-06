@@ -1,6 +1,4 @@
 #!/bin/env python3
-import hashlib
-import hmac
 import urllib.parse
 from hashlib import pbkdf2_hmac
 import base64
@@ -56,11 +54,11 @@ logging.debug("KDF Salt: 0x%s", kdfSalt.hex())
 
 # Run PBKDF2 to obtain our AES key
 key = pbkdf2_hmac(
-    hash_name = 'sha256',
-    password = args.Password[0].encode('utf-8'),
-    salt = kdfSalt,
-    iterations = 1000,
-    dklen = 64
+    hash_name='sha256',
+    password=args.Password[0].encode('utf-8'),
+    salt=kdfSalt,
+    iterations=1000,
+    dklen=64
 )
 
 logging.debug("KDF Output: 0x%s", key.hex())
@@ -99,7 +97,7 @@ logging.debug("IV: 0x%s", iv.hex())
 logging.debug("AES Key: 0x%s", aesKey.hex())
 
 # custom unpad, as pycrytodome does not support pkcs5
-unpad = lambda s : s[0:-(s[-1])]
+unpad = lambda s: s[0:-(s[-1])]
 
 cipher = AES.new(aesKey, mode=AES.MODE_CBC, iv=iv)
 decrypted_data = unpad(cipher.decrypt(encdata))
