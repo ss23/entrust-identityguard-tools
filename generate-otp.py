@@ -5,10 +5,14 @@ import logging
 
 logging.basicConfig(level=logging.WARNING)
 
-parser = argparse.ArgumentParser(description='Generate an OTP secret for an Entrust IdentityGuard soft token')
+parser = argparse.ArgumentParser(
+	description='Generate an OTP secret for an Entrust IdentityGuard soft token',
+	epilog='If your token does not work, try without the Policy argument, as in some cases, this is not used to generate the OTP secret'
+)
 parser.add_argument('Serial', type=str, nargs=1, help='Given to the user (such as through a QR code). Example: 48244-13456')
 parser.add_argument('ActivationCode', type=str, nargs=1, help='Given to the user (such as through a QR code). Example: 1745-7712-6942-8698')
 parser.add_argument('RegistrationCode', type=str, nargs=1, help='The user provides this to the activation service. Example: 12211-49352')
+parser.add_argument('--policy', type=str, nargs=1, required=False, help='The policy associated with the identity. Example: {"allowUnsecured":"false","trustedExecution":"NOT_ALLOWED"}')
 args = parser.parse_args()
 
 # Remove dashes from input so we can work with the data
@@ -32,10 +36,19 @@ rngbytes = registrationbytes[-2:]
 
 logging.info("RNG Bytes: 0x%s", rngbytes.hex())
 
+password = activationbytes + rngbytes
+
+# The secret may or may not include the policy
+if args.policy is not None:
+	password += args.policy[0].encode('utf-8')
+	logging.info("Policy: %s", args.policy[0].encode('utf-8'))
+else:
+	logging.debug("Policy not provided")
+
 # Derive the secret key
 key = pbkdf2_hmac(
     hash_name='sha256',
-    password=activationbytes + rngbytes,
+    password=password,
     salt=serial.encode("utf-8"),
     iterations=8,
     dklen=16

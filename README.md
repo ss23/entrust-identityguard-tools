@@ -13,8 +13,16 @@ $ ./decode-qr-uri.py 'igmobileotp://?action=secactivate&enc=VRUq6IoLWQRCMRITZEHt
 # generate-otp.py
 Once you have the required information from a QR code, you can combine it with a "registration code" to derive the OTP secret. This registration code contains random bytes that were generated on the end-users device (their mobile phone), and are thus required to determine the OTP secret. An example way to obtain all of this information would be through email, if the user recieves a QR code in their email, then responds with their registration code.
 
+The OTP secret optionally includes the policy specification, which is provided as part of the QR code. *If you are having problems generating a valid OTP secret, try with or without the policy parameter*.
+
 Example:
 ```
+$ ./generate-otp.py 48244-13456 1745-7712-6942-8698 12211-49352 --policy '{"allowUnsecured":"false","trustedExecution":"NOT_ALLOWED"}'
+bb9b6d72ae99b006de5e106935ec96da
+
+To generate a code immediately, run:
+oathtool -v --totp=sha256 --digits=6 bb9b6d72ae99b006de5e106935ec96da
+
 $ ./generate-otp.py 48244-13456 1745-7712-6942-8698 12211-49352
 9a8eab5ecc9fc413758a92ac223dc6a0
 
