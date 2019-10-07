@@ -41,3 +41,29 @@ Counter: 0x31EB8E5 (52345061)
 
 814835
 ```
+
+# crack-otp.py
+Because Entrust soft tokens only use 2 bytes of randomness generated on the end-user device, this means they're trivially bruteforcable given the original QR code and a single OTP output. Simply decode the QR code as usual, and provide it to the script along with an example OTP output and when it was generated. The script will do a sloppy match on the timing (+ and - 30 seconds) to improve the chances of a successful key being found, unless the `--strict-time` paramater is given which causes the script to do an search match.
+
+The script is fast enough on a CPU that a CUDA/OpenCL implmentation is probably not necessary.
+
+Example:
+```
+$ time ./crack-otp.py 48244-13456 1745-7712-6942-8698 043700 1570434609
+Possibe valid OTP seed found:  9a8eab5ecc9fc413758a92ac223dc6a0
+To generate a code immediately, run:
+oathtool -v --totp=sha256 --digits=6 9a8eab5ecc9fc413758a92ac223dc6a0
+
+real    0m3.540s
+user    0m3.537s
+sys     0m0.003s
+
+$ time ./crack-otp.py 48244-13456 1745-7712-6942-8698 043700 1570434609 --strict-time
+Possibe valid OTP seed found:  9a8eab5ecc9fc413758a92ac223dc6a0
+To generate a code immediately, run:
+oathtool -v --totp=sha256 --digits=6 9a8eab5ecc9fc413758a92ac223dc6a0
+
+real    0m1.212s
+user    0m1.209s
+sys     0m0.003s
+```
