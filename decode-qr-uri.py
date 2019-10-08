@@ -70,6 +70,8 @@ logging.debug("KDF Output: 0x%s", key.hex())
 macedPayload = o.query[0:o.query.rfind('&')] # mac is last param, so can remove it this way
 
 hmacKey = key[16:48]
+logging.debug("HMAC Key: 0x%s", hmacKey.hex())
+
 hmacer = hmac.new(hmacKey, digestmod=hashlib.sha256)
 hmacer.update(macedPayload.encode('utf-8'))
 hmacDigest = hmacer.digest()
