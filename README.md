@@ -67,3 +67,19 @@ real    0m1.212s
 user    0m1.209s
 sys     0m0.003s
 ```
+
+# crack-qr-uri.go
+The QR code normally comes with a relatively weak password, along with a MAC that can verify the password. This allows us to perform a bruteforce of all possible passwords in a relatively short period, even with a CPU implementation. Simply run the script with the QR code URI as a parameter and it will discover the password.
+
+Performance on with a single modern CPU core results in 0.720 seconds (approximately, of course) to perform 1000 password attempts. The keyspace exists from 0 to 99999999.
+
+Example (AWS EC2 c5.metal instance - 96 cores):
+```
+$ time go run crack-qr-uri.go -uri 'igmobileotp://?action=secactivate&enc=VRUq6IoLWQRCMRITZEHtHUSWJiPwgu%2FN1BFyUHE5kxuHIEYoE3zmNTrAHeeUM5S3gzCnTy%2F%2Bdnbu%2FsjjQW%2BNEISx8C4ra8rLpxOl8E8w4KXHgjeBRgdvSzl%2BbzX5RYRrQlWgK8hsBT4pQYE0eFgW2TmRbzXu1Mu7XjKDcwsJLew32jQC2qyPLP8hljnv2rHwwsMfhQwgJUJYfctwLWWEDUFukEckaZ4O&v=1&mac=mhVL8BWKaishMa5%2B' -threads 95
+action=secactivate&enc=VRUq6IoLWQRCMRITZEHtHUSWJiPwgu%2FN1BFyUHE5kxuHIEYoE3zmNTrAHeeUM5S3gzCnTy%2F%2Bdnbu%2FsjjQW%2BNEISx8C4ra8rLpxOl8E8w4KXHgjeBRgdvSzl%2BbzX5RYRrQlWgK8hsBT4pQYE0eFgW2TmRbzXu1Mu7XjKDcwsJLew32jQC2qyPLP8hljnv2rHwwsMfhQwgJUJYfctwLWWEDUFukEckaZ4O&v=1
+Candidate password found:  54998317
+
+real    67m23.690s
+user    3047m42.788s
+sys     870m1.228s
+```
