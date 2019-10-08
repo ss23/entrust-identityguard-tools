@@ -1,5 +1,7 @@
 #!/bin/env python3
 import urllib.parse
+import hmac
+import hashlib
 from hashlib import pbkdf2_hmac
 import base64
 import argparse
@@ -64,27 +66,22 @@ key = pbkdf2_hmac(
 logging.debug("KDF Output: 0x%s", key.hex())
 
 # Validate whether our key is correct using the provided MAC
-# TODO: Fix
-'''
+# The MAC'd payload does not include the MAC itself
+macedPayload = o.query[0:o.query.rfind('&')] # mac is last param, so can remove it this way
+
 hmacKey = key[16:48]
 hmacer = hmac.new(hmacKey, digestmod=hashlib.sha256)
-hmacer.update(urllib.parse.unquote(o.query).encode("utf-8"))
+hmacer.update(macedPayload.encode('utf-8'))
 hmacDigest = hmacer.digest()
 
 logging.info('HMAC Digest: 0x%s', hmacDigest.hex())
 
 try:
     mac = query['mac'][0]
-    if base64.b64decode(mac) != hmacDigest:
-        logging.warning("Falied to validate HMAC")
+    if base64.b64decode(mac) != hmacDigest[0:12]:
+        logging.warning("Falied to validate HMAC. Are you use this passcode is correct?")
 except:
     logging.warning("No MAC was provided in URI. Cannot verify if key is correct")
-
-print(query['mac'][0])
-print(o.query.encode('utf-8'))
-print(hmacDigest)
-print(base64.b64decode(query['mac'][0]))
-'''
 
 # Remove the KDF salt from the encrypted data
 encdata = enc[8:]
