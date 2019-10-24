@@ -83,3 +83,5 @@ real    67m23.690s
 user    3047m42.788s
 sys     870m1.228s
 ```
+
+Thre is also an OpenCL version of this process which can be found at https://github.com/JJJollyjim/entrust-2fa-opencl, which can be further optimised if desired.
