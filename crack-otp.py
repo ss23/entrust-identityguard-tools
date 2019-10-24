@@ -29,6 +29,15 @@ activation = activation[0:-1] # remove last digit -- check digit
 activationbytes = int(activation).to_bytes(7, byteorder='big')
 logging.info("Activation bytes: 0x%s", activationbytes.hex())
 
+# Determine the number of digits in the OTP and set the format accordingly
+digitlen = len(args.OTP[0])
+if digitlen == 6:
+    digitformat = "dec6"
+elif digitlen == 8:
+    digitformat = "dec8"
+else:
+    logging.fatal("Failed to determine format of OTP.")
+
 keys = []
 
 timeToSearch = []
@@ -68,7 +77,7 @@ for otpTime in timeToSearch:
         )
 
         # Verify whether the output is valid for the given time
-        otp = totp(key.hex(), hash=hashlib.sha256, t=otpTime)
+        otp = totp(key.hex(), hash=hashlib.sha256, t=otpTime, format=digitformat)
 
         if otp == args.OTP[0]:
             print("Possibe valid OTP seed found: ", key.hex())
