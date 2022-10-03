@@ -40,6 +40,7 @@ except:
 enc = False
 try:
     enc = query['enc'][0]
+    enc = enc.replace(" ","+")
 except:
     raise Exception('An "enc" parameter is a required part of the URI')
 
