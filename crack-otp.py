@@ -3,6 +3,7 @@ from hashlib import pbkdf2_hmac
 import argparse
 import logging
 import hashlib
+import base64
 from oath import totp
 
 logging.basicConfig(level=logging.WARNING)
@@ -17,6 +18,7 @@ parser.add_argument('OTP', type=str, nargs=1, help='An OTP token generated from 
 parser.add_argument('OTPTime', type=int, nargs=1, help='The time in seconds since EPOCH when the OTP was generated. There is some slack in this value (approximately 30 seconds). Example (2019-10-07 07:50:09 UTC): 1570434609')
 parser.add_argument('--policy', type=str, nargs=1, required=False, help='The policy associated with the identity. Example: {"allowUnsecured":"false","trustedExecution":"NOT_ALLOWED"}')
 parser.add_argument('--strict-time', type=bool, nargs='?', const=True, required=False, help='Only search for valid keys strictly for the given timestamp. Without this option, the tool will attempt to search 30 seconds ahead or behind the given OTPTime to increase the chances of finding the key')
+parser.add_argument('--label', type=str, nargs='?', const=True, required=False, help='Label to use for generating otpauth:// URL')
 args = parser.parse_args()
 
 # Remove dashes from input so we can work with the data
@@ -88,6 +90,10 @@ if len(keys) == 0:
 elif len(keys) == 1:
     print("To generate a code immediately, run:")
     print("oathtool -v --totp=sha256 --digits=6 " + keys[0].hex())
+    if (args.label):
+        print(f"otpauth://totp:{args.label}?secret={bytes.decode(base64.b32encode(keys[0]))}&algorithm=sha256&digits=8")
+    else:
+        print("base32 encoded key: " + bytes.decode(base64.b32encode(keys[0])))
 else:
     print("To generate a code immediately, run:")
     print("oathtool -v --totp=sha256 --digits=6 (found key)")
